@@ -1,0 +1,19 @@
+{
+  "name": "demoapps",
+  "version": "1.0.0",
+  "description": "Few demoapps.",
+  "main": "index.js",
+  "scripts": {
+    "generate": "cargo test && dfx generate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peterpeterparker/demoapps.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/peterpeterparker/demoapps/issues"
+  },
+  "homepage": "https://github.com/peterpeterparker/demoapps#readme"
+}
