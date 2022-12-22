@@ -1,6 +1,6 @@
 mod types;
 
-use ic_cdk_macros::{query, init};
+use ic_cdk_macros::{query, init, post_upgrade};
 use std::cell::RefCell;
 use candid::CandidType;
 use serde::Deserialize;
@@ -27,6 +27,15 @@ thread_local! {
 
 #[init]
 fn init() {
+    init_state()
+}
+
+#[post_upgrade]
+fn post_upgrade() {
+    init_state()
+}
+
+fn init_state() {
     let description = option_env!("APP_DESCRIPTION").map(|value| value.to_string());
     let url = option_env!("APP_URL").map(|value| value.to_string());
 
