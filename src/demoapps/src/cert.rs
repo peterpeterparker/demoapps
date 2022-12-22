@@ -47,7 +47,7 @@ fn build_asset_certificate_header_impl(
             format!(
                 "certificate=:{}:, tree=:{}:",
                 encode(certificate),
-                encode(&serializer.into_inner())
+                encode(serializer.into_inner())
             ),
         )),
     }

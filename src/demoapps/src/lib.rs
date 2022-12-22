@@ -65,7 +65,7 @@ fn http_request(HttpRequest { method: _, url, headers: _, body: _ }: HttpRequest
 
     HttpResponse {
         body: body.as_bytes().to_vec(),
-        headers: Vec::from( [headers.clone()]),
+        headers: Vec::from( [headers]),
         status_code: 200,
         streaming_strategy: None,
     }
@@ -88,7 +88,6 @@ mod tests {
 
     #[test]
     fn save_candid() {
-        use std::env;
         use std::fs::write;
         use std::path::PathBuf;
 

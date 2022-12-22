@@ -5,7 +5,7 @@ impl From<&String> for AssetHashes {
     fn from(html: &String) -> Self {
         let mut asset_hashes = Self::default();
 
-        asset_hashes.insert(&html);
+        asset_hashes.insert(html);
 
         asset_hashes
     }
