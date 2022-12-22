@@ -1,0 +1,8 @@
+type Meta = record {
+  url : opt text;
+  theme : text;
+  logo : text;
+  name : text;
+  description : opt text;
+};
+service : { meta : () -> (Meta) query }
