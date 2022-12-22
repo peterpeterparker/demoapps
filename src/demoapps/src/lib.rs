@@ -1,25 +1,14 @@
 mod types;
+mod cert;
+mod impls;
 
 use ic_cdk_macros::{query, init, post_upgrade};
 use std::cell::RefCell;
-use candid::CandidType;
-use serde::Deserialize;
 use ic_cdk::export::candid::{candid_method, export_service};
+use crate::cert::{build_asset_certificate_header, update_certified_data};
+use crate::types::assets::AssetHashes;
 use crate::types::http::{HttpRequest, HttpResponse};
-
-#[derive(Default, Clone)]
-pub struct State {
-    pub meta: Meta,
-}
-
-#[derive(Default, CandidType, Deserialize, Clone)]
-pub struct Meta {
-    pub name: String,
-    pub description: Option<String>,
-    pub theme: String,
-    pub logo: String,
-    pub url: Option<String>,
-}
+use crate::types::state::{Meta, State};
 
 thread_local! {
     static STATE: RefCell<State> = RefCell::default();
@@ -39,17 +28,26 @@ fn init_state() {
     let description = option_env!("APP_DESCRIPTION").map(|value| value.to_string());
     let url = option_env!("APP_URL").map(|value| value.to_string());
 
+    let name = option_env!("APP_NAME").unwrap().to_string();
+    let body = format!("<html lang=\"en\"><body><h1>{}</h1></body></html>", name);
+
+    let asset_hashes = AssetHashes::from(&body);
+
     STATE.with(|state| {
         *state.borrow_mut() = State {
             meta: Meta {
-                name: option_env!("APP_NAME").unwrap().to_string(),
+                name,
                 description: description.clone(),
                 theme: option_env!("APP_THEME").unwrap().to_string(),
                 logo: option_env!("APP_LOGO").unwrap().to_string(),
                 url: url.clone(),
-            }
+            },
+            body,
+            asset_hashes: asset_hashes.clone()
         };
     });
+
+    update_certified_data(&asset_hashes);
 }
 
 #[candid_method(query)]
@@ -60,13 +58,14 @@ fn meta() -> Meta {
 
 #[query]
 #[candid_method(query)]
-fn http_request(HttpRequest { method: _, url: _, headers: _, body: _ }: HttpRequest) -> HttpResponse {
-    let name = STATE.with(|state| state.borrow().meta.name.clone());
-    let body = format!("<html lang=\"en\"><body><h1>{}</h1></body></html>", name);
+fn http_request(HttpRequest { method: _, url, headers: _, body: _ }: HttpRequest) -> HttpResponse {
+    let State {body, asset_hashes, meta: _} = STATE.with(|state| state.borrow().clone());
+
+    let headers = build_asset_certificate_header(&asset_hashes, url).unwrap();
 
     HttpResponse {
         body: body.as_bytes().to_vec(),
-        headers: Vec::new(),
+        headers: Vec::from( [headers.clone()]),
         status_code: 200,
         streaming_strategy: None,
     }

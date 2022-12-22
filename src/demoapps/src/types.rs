@@ -1,3 +1,25 @@
+pub mod state {
+    use crate::types::assets::AssetHashes;
+    use candid::CandidType;
+    use serde::Deserialize;
+
+    #[derive(Default, Clone)]
+    pub struct State {
+        pub meta: Meta,
+        pub body: String,
+        pub asset_hashes: AssetHashes,
+    }
+
+    #[derive(Default, CandidType, Deserialize, Clone)]
+    pub struct Meta {
+        pub name: String,
+        pub description: Option<String>,
+        pub theme: String,
+        pub logo: String,
+        pub url: Option<String>,
+    }
+}
+
 pub mod http {
     use candid::{CandidType, Deserialize, Func};
     use serde_bytes::ByteBuf;
@@ -43,5 +65,15 @@ pub mod http {
     pub struct StreamingCallbackHttpResponse {
         pub body: Vec<u8>,
         pub token: Option<StreamingCallbackToken>,
+    }
+}
+
+pub mod assets {
+    use ic_certified_map::{Hash, RbTree};
+    use std::clone::Clone;
+
+    #[derive(Default, Clone)]
+    pub struct AssetHashes {
+        pub tree: RbTree<String, Hash>,
     }
 }
