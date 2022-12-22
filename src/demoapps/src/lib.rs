@@ -1,8 +1,11 @@
+mod types;
+
 use ic_cdk_macros::{query, init};
 use std::cell::RefCell;
 use candid::CandidType;
 use serde::Deserialize;
 use ic_cdk::export::candid::{candid_method, export_service};
+use crate::types::http::{HttpRequest, HttpResponse};
 
 #[derive(Default, Clone)]
 pub struct State {
@@ -45,6 +48,21 @@ fn init() {
 fn meta() -> Meta {
     STATE.with(|state| state.borrow().meta.clone())
 }
+
+#[query]
+#[candid_method(query)]
+fn http_request(HttpRequest { method: _, url: _, headers: _, body: _ }: HttpRequest) -> HttpResponse {
+    let name = STATE.with(|state| state.borrow().meta.name.clone());
+    let body = format!("<html lang=\"en\"><body><h1>{}</h1></body></html>", name);
+
+    HttpResponse {
+        body: body.as_bytes().to_vec(),
+        headers: Vec::new(),
+        status_code: 200,
+        streaming_strategy: None,
+    }
+}
+
 
 ///
 /// Generate did files
