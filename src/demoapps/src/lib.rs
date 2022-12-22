@@ -1,9 +1,9 @@
 use ic_cdk_macros::{query, init};
 use std::cell::RefCell;
-use std::env;
 use candid::CandidType;
 use serde::Deserialize;
 use ic_cdk::export::candid::{candid_method, export_service};
+use ic_cdk::print;
 
 #[derive(Default, Clone)]
 pub struct State {
@@ -25,14 +25,17 @@ thread_local! {
 
 #[init]
 fn init() {
+    let description = option_env!("APP_DESCRIPTION").map(|value| value.to_string());
+    let url = option_env!("APP_URL").map(|value| value.to_string());
+
     STATE.with(|state| {
         *state.borrow_mut() = State {
             meta: Meta {
-                name: env::var("name").unwrap(),
-                description: Some(env::var("description").unwrap()),
-                theme: env::var("theme").unwrap(),
-                logo: env::var("logo").unwrap(),
-                url: Some(env::var("url").unwrap()),
+                name: option_env!("APP_NAME").unwrap().to_string(),
+                description: description.clone(),
+                theme: option_env!("APP_THEME").unwrap().to_string(),
+                logo: option_env!("APP_LOGO").unwrap().to_string(),
+                url: url.clone(),
             }
         };
     });
@@ -64,7 +67,7 @@ mod tests {
         use std::fs::write;
         use std::path::PathBuf;
 
-        let dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+        let dir = PathBuf::from(option_env!("CARGO_MANIFEST_DIR").unwrap());
         let dir = dir
             .parent()
             .unwrap()
