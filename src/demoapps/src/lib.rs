@@ -3,7 +3,6 @@ use std::cell::RefCell;
 use candid::CandidType;
 use serde::Deserialize;
 use ic_cdk::export::candid::{candid_method, export_service};
-use ic_cdk::print;
 
 #[derive(Default, Clone)]
 pub struct State {
